@@ -1,0 +1,1 @@
+import shopify_model
