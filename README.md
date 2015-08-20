@@ -1,2 +1,2 @@
 # shopify_odoo_connector
-This module is for connect your shopify shop
+This module depends on github.com/OCA/connector framework.
