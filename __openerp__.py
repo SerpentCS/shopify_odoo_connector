@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 ##############################################################################
 #
-#    Author: David BEAL, Copyright Akretion, 2014
+#    OpenERP, Open Source Management Solution
+#    Copyright (C) 2015 Serpent Consulting Services Pvt. Ltd.
+#    Copyright (C) 2015 OpenERP SA (<http://www.serpentcs.com>)
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as
@@ -40,6 +42,7 @@ Add 'Connector' tab to product view
  'data': [
           'views/shopify_model_view.xml',
           'views/shopifyodooconnect_menu.xml',
+          'views/product_product.xml',
  ],
  'installable': True,
  }

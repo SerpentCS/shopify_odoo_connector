@@ -1,3 +1,24 @@
+# -*- coding: utf-8 -*-
+##############################################################################
+#
+#    OpenERP, Open Source Management Solution
+#    Copyright (C) 2011-Till Today Serpent Consulting Services PVT LTD (<http://www.serpentcs.com>)
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU Affero General Public License as
+#    published by the Free Software Foundation, either version 3 of the
+#    License, or (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU Affero General Public License for more details.
+#
+#    You should have received a copy of the GNU Affero General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+############################################################################
+
 from openerp import models, fields, api, _
 import shopify
 import urllib
@@ -61,8 +82,8 @@ class Shopify(models.Model):
              "stock inventory updates.\nIf empty, Quantity Available "
              "is used.",
     )
-    import_products_from_date = fields.Date("Date")
-    import_categories_from_date = fields.Date("Date")
+    import_products_from_date = fields.Date("Import product from")
+    import_categories_from_date = fields.Date("Import category from")
     
     @api.multi
     def synchronize_metadata(self):
@@ -79,13 +100,16 @@ class Shopify(models.Model):
         for backend in self:
             if backend.search([('synchronize','=',True), ('id','=',backend.id)]):
                 try:
+                    product_cate_env = backend.env['product.category'] 
                     dict_category = {}
                     shopify_collection = shopify.CustomCollection.find()
                     if shopify_collection:
                         for category in shopify_collection:
                                 dict_category = category.__dict__['attributes']
-                                id = backend.env['product.category'].create({'name':dict_category['title'],
-                                                                        'write_uid':backend.env.uid,})
+                                if not product_cate_env.search([('shopify_product_cate_id','=',dict_category['id'])]):
+                                    product_cate_env.create({'name':dict_category['title'],
+                                                            'write_uid':backend.env.uid,
+                                                            'shopify_product_cate_id':dict_category['id'],})
                 except Exception:
                     raise Warning(_('Please make proper synchronize metadata'))
             else:
@@ -103,22 +127,28 @@ class Shopify(models.Model):
         products = shopify.Product.find()
         product_tmpl_env = self.env['product.template']
         product_product_env = self.env['product.product']
-        
-        for p_line in products:
+        product_cate_env = self.env['product.category']
+        for product in products:
             vals_product_tmpl = {}
             vals_product_product = {}
-            print "priduct:::",p_line
-            dict_attr = p_line.__dict__['attributes']
+            dict_attr = product.__dict__['attributes']
             list_variant = dict_attr['variants']
             dict_variant = list_variant[0].__dict__['attributes']
             
             product_odoo = product_tmpl_env.search([('shopify_product_id', '=', dict_attr['id'])])
             if not product_odoo:
-                image_urls = [getattr(i, 'src') for i in p_line.images]
+                image_urls = [getattr(i, 'src') for i in product.images]
                 if len(image_urls)>0:
                     photo = base64.encodestring(urllib2.urlopen(image_urls[0]).read())
                     vals_product_tmpl.update({'image_medium':photo})
                 
+                custom_collection = shopify.CustomCollection.find(product_id = dict_attr['id'])
+                if custom_collection:
+                    for categ in custom_collection:
+                        product_cate_obj = product_cate_env.search([('shopify_product_cate_id','=',categ.__dict__['attributes']['id'])])
+                        if product_cate_obj:
+                            vals_product_tmpl.update({'categ_id':product_cate_obj.id})
+                            
                 vals_product_tmpl.update({'name':dict_attr['title'],
                             'type':'consu',
                             'shopify_product_id':dict_attr['id'],
@@ -136,17 +166,6 @@ class Shopify(models.Model):
                     vals_product_product.update({'product_tmpl_id':product_tid.id,
                                                  'product_sfy_variant_id':dict_vari['attributes']['id'],})
                     product_product_env.create(vals_product_product)
-            else:
-                vals_product_tmpl.update({'name':dict_attr['title'],
-                            'type':'consu',
-                            'shopify_product_id':dict_attr['id'],
-                            'description':dict_attr['body_html'],
-                            'state':'add',
-                            'list_price':dict_variant['price'],
-                            'standard_price':dict_variant['compare_at_price'],
-                            'volume':dict_variant['inventory_quantity']})
-                
-                product_odoo.write(vals_product_tmpl)
     @api.multi
     def update_product_stock_qty(self):
-        print "\n\n\n\n======"
+        print "======"

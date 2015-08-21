@@ -1,1 +1,2 @@
 import shopify_model
+import product
