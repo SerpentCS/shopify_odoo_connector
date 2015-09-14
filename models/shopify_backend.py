@@ -124,7 +124,6 @@ class Shopify(models.Model):
     @api.multi
     def import_product_categories(self):
         try:
-            print "]]]]]]",self.env.cr.dbname
             new_cr = sql_db.db_connect(self.env.cr.dbname).cursor()
             uid, context = self.env.uid, self.env.context
             with api.Environment.manage():
@@ -137,25 +136,25 @@ class Shopify(models.Model):
                 product_category_ids = product_category_env.search([('name',
                                                 '=', 'Shopify Products')])
                 if not product_category_ids:
-                    id1 = session.create({'name': 'Shopify Products'})
-                shopify_collection = shopify.CustomCollection.find()
-                if shopify_collection:
-                    for category in shopify_collection:
-                        vals = {}
-                        dict_category = category.__dict__['attributes']
-                        if product_category_ids:
-                            vals.update({'parent_id': product_category_ids.id})
-                        else:
-                            vals.update({'parent_id': id1})
-                        vals.update({'name': dict_category['title'],
-                                     'write_uid': self.env.uid,
-                                     'shopify_product_cate_id': dict_category['id']})
-                        product_cate_id = product_category_env.search([('shopify_product_cate_id',
-                                                                        '=', dict_category['id'])])
-                        if not product_cate_id:
-                            session.create('product.category', vals)
-                        else:
-                            session.write('product.category', product_cate_id.id, vals)
+                    id1 = session.create('product.category', {'name': 'Shopify Products'})
+#                 shopify_collection = shopify.CustomCollection.find()
+#                 if shopify_collection:
+#                     for category in shopify_collection:
+#                         vals = {}
+#                         dict_category = category.__dict__['attributes']
+#                         if product_category_ids:
+#                             vals.update({'parent_id': product_category_ids.id})
+#                         else:
+#                             vals.update({'parent_id': id1})
+#                         vals.update({'name': dict_category['title'],
+#                                      'write_uid': self.env.uid,
+#                                      'shopify_product_cate_id': dict_category['id']})
+#                         product_cate_id = product_category_env.search([('shopify_product_cate_id',
+#                                                                         '=', dict_category['id'])])
+#                         if not product_cate_id:
+#                             session.create('product.category', vals)
+#                         else:
+#                             session.write('product.category', product_cate_id.id, vals)
         except:
             raise Warning(_('Facing a problems during importing product categories!'))
         finally:
