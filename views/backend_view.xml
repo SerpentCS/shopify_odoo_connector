@@ -34,7 +34,8 @@
                                 <group>
                                     <label string="Import all customer" class="oe_inline"/>
                                     <div>
-                                        <button name="import_customer_groups"
+                                        <button name="import_background"
+                                            context="{'button_customer':True}"
                                             type="object"
                                             class="oe_highlight"
                                             string="Import in background"/>
@@ -47,7 +48,8 @@
                                             class="oe_inline"
                                             nolabel="1"/>
                                     </div>
-                                    <button name="import_product_categories"
+                                    <button name="import_background"
+                                        context="{'button_product_category':True}"
                                         type="object"
                                         class="oe_highlight"
                                         string="Import in background"/>
@@ -59,21 +61,24 @@
                                             class="oe_inline"
                                             nolabel="1"/>
                                     </div>
-                                    <button name="import_product_product"
+                                    <button name="import_background"
+                                        context="{'button_product':True}"
                                         type="object"
                                         class="oe_highlight"
                                         string="Import in background"/>
                                 </group>
                                 <group>
                                     <label string="Import sales orders" class="oe_inline"/>
-                                    <button name="import_sale_orders"
+                                    <button name="import_background"
+                                        context="{'button_sale_order':True}"
                                         type="object"
                                         class="oe_highlight"
                                         string="Import in background"/>
                                 </group>
                                 <group>
                                     <label string="Update all the products stock quantities" class="oe_inline"/>
-                                    <button name="update_product_stock_qty"
+                                    <button name="import_background"
+                                        context="{'button_stock_qty':True}"
                                         type="object"
                                         class="oe_highlight"
                                         string="Update"/>
