@@ -1,2 +1,2 @@
-import shopify_model
+import shopify_backend
 import product

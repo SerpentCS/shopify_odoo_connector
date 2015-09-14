@@ -12,23 +12,5 @@
         parent="menu_magento_root"
         action="action_shopify_backend"/>
 
-    <menuitem id="menu_magento_website"
-        name="Websites"
-        parent="menu_magento_root"
-        sequence="20"
-        action="action_shopify_backend"/>
-
-    <menuitem id="menu_magento_store"
-        name="Stores"
-        parent="menu_magento_root"
-        sequence="30"
-        action="action_shopify_backend"/>
-
-    <menuitem id="menu_magento_storeview"
-        name="Storeviews"
-        parent="menu_magento_root"
-        sequence="40"
-        action="action_shopify_backend"/>
-
   </data>
 </openerp>

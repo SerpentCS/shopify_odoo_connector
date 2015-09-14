@@ -1,0 +1,116 @@
+<openerp>
+    <data>
+
+        <record id="view_shopify_backend_form" model="ir.ui.view">
+            <field name="name">shopify.backend.form</field>
+            <field name="model">shopify.backend</field>
+            <field name="arch" type="xml">
+                <form string="Shopify Backend">
+                    <header>
+                      <button name="test_connection"
+                        type="object"
+                        class="oe_highlight"
+                        string="Check Connection"/>
+                    </header>
+                    <sheet>
+                        <label for="name" class="oe_edit_only"/>
+                        <h1>
+                            <field name="name" class="oe_inline" />
+                        </h1>
+                        <group name="shopify" string="Shopify Configuration">
+                                	<group colspan="4" col="4">
+                                	    <field name="shopify_url" placeholder="e.g. https://%s:%s@my-shop.myshopify.com/admin"
+                                            colspan="4"/>
+                                        <field name="api_key" colspan="2"/>
+                                        <field name="password" password="1" colspan="2"/>
+                                    </group>
+                        </group>
+                        <group name="main_configuration" string="Main Configuration">
+                            <field name="warehouse_id"/>
+                        </group>
+                        <group name="main_configuration1">
+                        <notebook>
+                            <page name="import" string="Imports">
+                                <group>
+                                    <label string="Import all customer" class="oe_inline"/>
+                                    <div>
+                                        <button name="import_customer_groups"
+                                            type="object"
+                                            class="oe_highlight"
+                                            string="Import in background"/>
+                                    </div>
+                                </group>
+                                <group>
+                                    <div>
+                                        <label string="Import products categories" class="oe_inline"/>
+                                        <field name="import_categories_from_date"
+                                            class="oe_inline"
+                                            nolabel="1"/>
+                                    </div>
+                                    <button name="import_product_categories"
+                                        type="object"
+                                        class="oe_highlight"
+                                        string="Import in background"/>
+                                </group>
+                                <group>
+                                    <div>
+                                        <label string="Import products" class="oe_inline"/>
+                                        <field name="import_products_from_date"
+                                            class="oe_inline"
+                                            nolabel="1"/>
+                                    </div>
+                                    <button name="import_product_product"
+                                        type="object"
+                                        class="oe_highlight"
+                                        string="Import in background"/>
+                                </group>
+                                <group>
+                                    <label string="Import sales orders" class="oe_inline"/>
+                                    <button name="import_sale_orders"
+                                        type="object"
+                                        class="oe_highlight"
+                                        string="Import in background"/>
+                                </group>
+                                <group>
+                                    <label string="Update all the products stock quantities" class="oe_inline"/>
+                                    <button name="update_product_stock_qty"
+                                        type="object"
+                                        class="oe_highlight"
+                                        string="Update"/>
+                                </group>
+
+                            </page>
+
+                            <page name="advanced_configuration" string="Advanced Configuration">
+                                <group>
+                                    <field name="default_lang_id" widget="selection"/>
+                                    <field name="default_category_id"/>
+                                    <field name="sale_prefix" placeholder="mag-" />
+                                    <field name="product_stock_field_id" widget="selection"
+                                        domain="[('model', 'in', ['product.product', 'product.template']), ('ttype', '=', 'float')]"/>
+                                </group>
+                            </page>
+                        </notebook>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id = "shopify_connector_tree_view" model = "ir.ui.view">
+			<field name = "name">shopify.connector.tree.view</field>
+			<field name = "model">shopify.backend</field>
+			<field name = "arch" type = "xml">
+				<tree string = "Shopify Backend">
+					<field name="name" />
+					<field name="shopify_url"/>
+				</tree>
+			</field>
+		</record>
+		<record id  = "action_shopify_backend" model = "ir.actions.act_window">
+			<field name = "name">Shopify</field>
+			<field name = "res_model">shopify.backend</field>
+			<field name = "view_type">form</field>
+			<field name = "view_mode">tree,form</field>
+		</record>
+    </data>
+</openerp>

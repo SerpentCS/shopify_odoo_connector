@@ -40,7 +40,7 @@ Add 'Connector' tab to product view
      'delivery',
  ],
  'data': [
-          'views/shopify_model_view.xml',
+          'views/backend_view.xml',
           'views/shopifyodooconnect_menu.xml',
           'views/product_product.xml',
  ],
