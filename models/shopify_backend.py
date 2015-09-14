@@ -130,7 +130,7 @@ class Shopify(models.Model):
                 self.env = api.Environment(new_cr, uid, context)
                 self.import_categories_from_date = datetime.now()
                 self.test_connection()
-                session = ConnectorSession(new_cr, self.env.uid,
+                session = ConnectorSession(self.env.cr, self.env.uid,
                                            context=self.env.context)
                 product_category_env = self.env['product.category']
                 product_category_ids = product_category_env.search([('name',
