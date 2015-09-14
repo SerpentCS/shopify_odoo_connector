@@ -137,24 +137,24 @@ class Shopify(models.Model):
                                                 '=', 'Shopify Products')])
                 if not product_category_ids:
                     id1 = session.create('product.category', {'name': 'Shopify Products'})
-#                 shopify_collection = shopify.CustomCollection.find()
-#                 if shopify_collection:
-#                     for category in shopify_collection:
-#                         vals = {}
-#                         dict_category = category.__dict__['attributes']
-#                         if product_category_ids:
-#                             vals.update({'parent_id': product_category_ids.id})
-#                         else:
-#                             vals.update({'parent_id': id1})
-#                         vals.update({'name': dict_category['title'],
-#                                      'write_uid': self.env.uid,
-#                                      'shopify_product_cate_id': dict_category['id']})
-#                         product_cate_id = product_category_env.search([('shopify_product_cate_id',
-#                                                                         '=', dict_category['id'])])
-#                         if not product_cate_id:
-#                             session.create('product.category', vals)
-#                         else:
-#                             session.write('product.category', product_cate_id.id, vals)
+                shopify_collection = shopify.CustomCollection.find()
+                if shopify_collection:
+                    for category in shopify_collection:
+                        vals = {}
+                        dict_category = category.__dict__['attributes']
+                        if product_category_ids:
+                            vals.update({'parent_id': product_category_ids.id})
+                        else:
+                            vals.update({'parent_id': id1})
+                        vals.update({'name': dict_category['title'],
+                                     'write_uid': self.env.uid,
+                                     'shopify_product_cate_id': dict_category['id']})
+                        product_cate_id = product_category_env.search([('shopify_product_cate_id',
+                                                                        '=', dict_category['id'])])
+                        if not product_cate_id:
+                            session.create('product.category', vals)
+                        else:
+                            session.write('product.category', product_cate_id.id, vals)
         except:
             raise Warning(_('Facing a problems during importing product categories!'))
         finally:
