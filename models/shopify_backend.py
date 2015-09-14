@@ -137,7 +137,7 @@ class Shopify(models.Model):
                 product_category_ids = product_category_env.search([('name',
                                                 '=', 'Shopify Products')])
                 if not product_category_ids:
-                    id1 = product_category_env.create({'name': 'Shopify Products'})
+                    id1 = session.create({'name': 'Shopify Products'})
                 shopify_collection = shopify.CustomCollection.find()
                 if shopify_collection:
                     for category in shopify_collection:
