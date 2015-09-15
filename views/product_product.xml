@@ -1,6 +1,5 @@
 <openerp>
 	<data>
-		<!-- ADD PRODUCT BUTTON IN PRODUCT VIEW -->
 		<record id="product_add_button" model="ir.ui.view">
 			<field name="name">product.add.button</field>
 			<field name="model">product.template</field>
@@ -17,5 +16,18 @@
 				</field>
 			</field>
 		</record>
+		
+		<record id="product_category_form_view_inherit1" model="ir.ui.view">
+            <field name="name">product.category.form1</field>
+            <field name="model">product.category</field>
+            <field name="inherit_id" ref="product.product_category_form_view" />
+            <field name="arch" type="xml">
+                <xpath expr="//group[@name='parent']" position="after">
+                    <group colspan="2">
+                    	<field name="description" nolabel='1' placeholder="Description"/>
+                    </group>
+                </xpath>
+            </field>
+        </record>
 	</data>
 </openerp>

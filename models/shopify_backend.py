@@ -120,6 +120,7 @@ class Shopify(models.Model):
             threaded_calculation.start()
         else:
             pass
+        return True
 
     @api.multi
     def import_product_categories(self):
@@ -132,56 +133,58 @@ class Shopify(models.Model):
                 self.test_connection()
                 session = ConnectorSession(self.env.cr, self.env.uid,
                                            context=self.env.context)
-                product_category_env = self.env['product.category']
-                product_category_ids = product_category_env.search([('name',
-                                                '=', 'Shopify Products')])
+                product_category_ids = session.search('product.category', [('name',
+                                                    '=', 'Shopify Products')])
                 if not product_category_ids:
-                    id1 = session.create('product.category', {'name': 'Shopify Products'})
+                    category_id = session.create('product.category',
+                                                 {'name': 'Shopify Products'})
+                    new_cr.commit()
                 shopify_collection = shopify.CustomCollection.find()
                 if shopify_collection:
                     for category in shopify_collection:
                         vals = {}
                         dict_category = category.__dict__['attributes']
                         if product_category_ids:
-                            vals.update({'parent_id': product_category_ids.id})
+                            vals.update({'parent_id': product_category_ids[0]})
                         else:
-                            vals.update({'parent_id': id1})
+                            vals.update({'parent_id': category_id})
                         vals.update({'name': dict_category['title'],
+                                     'description': dict_category['body_html'],
                                      'write_uid': self.env.uid,
                                      'shopify_product_cate_id': dict_category['id']})
-                        product_cate_id = product_category_env.search([('shopify_product_cate_id',
-                                                                        '=', dict_category['id'])])
+                        product_cate_id = session.search('product.category',
+                                                         [('shopify_product_cate_id',
+                                                         '=', dict_category['id'])])
                         if not product_cate_id:
                             session.create('product.category', vals)
+                            new_cr.commit()
                         else:
-                            session.write('product.category', product_cate_id.id, vals)
+                            session.write('product.category', product_cate_id[0], vals)
+                            new_cr.commit()
         except:
-            raise Warning(_('Facing a problems during importing product categories!'))
+            raise Warning(_('Facing a problems while importing product categories!'))
         finally:
             self.env.cr.close()
-
+            
     @api.multi
     def import_product_product(self):
         try:
+            print ":::::::::::"
             new_cr = sql_db.db_connect(self.env.cr.dbname).cursor()
             uid, context = self.env.uid, self.env.context
             with api.Environment.manage():
                 self.env = api.Environment(new_cr, uid, context)
                 self.test_connection()
+                session = ConnectorSession(self.env.cr, self.env.uid,
+                                           context=self.env.context)
                 self.import_products_from_date = datetime.now()
                 products = shopify.Product.find()
-                product_tmpl_env = self.env['product.template']
-                product_product_env = self.env['product.product']
-                product_cate_env = self.env['product.category']
                 for product in products:
                     vals_product_tmpl = {}
-                    vals_product_product = {}
                     dict_attr = product.__dict__['attributes']
-                    list_variant = dict_attr['variants']
-                    dict_variant = list_variant[0].__dict__['attributes']
-                    product_odoo = product_tmpl_env.search([('shopify_product_id',
-                                                             '=', dict_attr['id'])])
-                    if not product_odoo:
+                    if not session.search('product.template',
+                                          [('shopify_product_id',
+                                            '=', dict_attr['id'])]):
                         image_urls = [getattr(i, 'src') for i in product.images]
                         if len(image_urls) > 0:
                             photo = base64.encodestring(urllib2.urlopen(image_urls[0]).read())
@@ -190,26 +193,27 @@ class Shopify(models.Model):
                         custom_collection = shopify.CustomCollection.find(product_id=dict_attr['id'])
                         if custom_collection:
                             for categ in custom_collection:
-                                product_cate_obj = product_cate_env.search([('shopify_product_cate_id',
-                                                                             '=', categ.__dict__['attributes']['id'])])
+                                product_cate_obj = session.search('product.category',
+                                                                  [('shopify_product_cate_id',
+                                                                '=', categ.__dict__['attributes']['id'])])
                                 if product_cate_obj:
-                                    vals_product_tmpl.update({'categ_id': product_cate_obj.id})
+                                    vals_product_tmpl.update({'categ_id': product_cate_obj[0]})
                         vals_product_tmpl.update({'name': dict_attr['title'],
-                                                  'type': 'consu',
-                                                  'shopify_product_id': dict_attr['id'],
-                                                  'description': dict_attr['body_html'],
-                                                  'state': 'add',
-                                                  'list_price': dict_variant['price'],
-                                                  'standard_price': dict_variant['compare_at_price'],
-                                                  'volume': dict_variant['inventory_quantity']})
-                        product_tid = product_tmpl_env.create(vals_product_tmpl)
-                        for i in list_variant:
-                            dict_vari = i.__dict__
-                            vals_product_product.update({'product_tmpl_id': product_tid.id,
-                                                         'product_sfy_variant_id': dict_vari['attributes']['id']})
-                            product_product_env.create(vals_product_product)
+                                                'type': 'consu',
+                                                'shopify_product_id': dict_attr['id'],
+                                                'description': dict_attr['body_html'],
+                                                'state': 'add'})
+                        product_tid = session.create('product.template', vals_product_tmpl)
+                        new_cr.commit()
+                        variants = dict_attr['variants']
+                        for variant in variants:
+                            dict_variant = variant.__dict__['attributes']
+                            u = session.create('product.product',
+                                               {'product_tmpl_id': product_tid,
+                                                'product_sfy_variant_id': dict_variant['id']})
+                            new_cr.commit()
         except:
-            raise Warning(_('Facing a problems during importing product!'))
+            raise Warning(_('Facing a problems while importing product!'))
         finally:
             self.env.cr.close()
 
@@ -222,7 +226,7 @@ class Shopify(models.Model):
                 self.env = api.Environment(new_cr, uid, context)
                 self.test_connection()
         except:
-            raise Warning(_('Facing a problems during importing customer!'))
+            raise Warning(_('Facing a problems while importing customer!'))
         finally:
             self.env.cr.close()
 
@@ -235,7 +239,7 @@ class Shopify(models.Model):
                 self.env = api.Environment(new_cr, uid, context)
                 self.test_connection()
         except:
-            raise Warning(_('Facing a problems during importing customer!'))
+            raise Warning(_('Facing a problems while importing customer!'))
         finally:
             self.env.cr.close()
 
@@ -248,6 +252,6 @@ class Shopify(models.Model):
                 self.env = api.Environment(new_cr, uid, context)
                 self.test_connection()
         except:
-            raise Warning(_('Facing a problems during importing sale order!'))
+            raise Warning(_('Facing a problems while importing sale order!'))
         finally:
             self.env.cr.close()

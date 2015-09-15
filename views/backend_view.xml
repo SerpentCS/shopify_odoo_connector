@@ -49,10 +49,11 @@
                                             nolabel="1"/>
                                     </div>
                                     <button name="import_background"
-                                        context="{'button_product_category':True}"
                                         type="object"
+                                        context="{'button_product_category':True}"
                                         class="oe_highlight"
                                         string="Import in background"/>
+                                    
                                 </group>
                                 <group>
                                     <div>
